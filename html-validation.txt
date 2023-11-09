@@ -1,0 +1,308 @@
+Introduction
+
+As I have looked into HTML validation, I have researched and gone down different paths (and rabbit holes) and initially came across a lot of promising leads.
+Unfortunately, I feel the majority of packages found in search results have been written for older, static ways of creating html pages e.g. Grunt.
+Whether it's my lack of front-end knowledge or not, I have found it tough to find anything suitable that doesn't involve a lot of extra set up and manual input.
+Perhaps, some of my notes may spark some inspiration for others who have more comprehensive knowledge of front-end, back-end and testing.
+
+
+Investigation
+
+I have installed and tested a few plugins / packages to research any benefits for improving the HTML standards in our code base.
+I feel that I've only scratched the surface and there's a lot more to look through and research. I will update this page with any extra findings in the near future.
+My notes on first impressions trying out different packages are listed below.
+
+
+Results
+
+If you're looking for an HTML validation package for React codebase that you can just install with no effort and have automatic results in IDE, I have not come across an obvious winner that ticks all the boxes.
+
+However, I feel these two packages are worth looking at:
+
+Cypress HTML validator 
+
+I have been impressed with the amount of detail that Cypress HTML validator returns and this is the package that I feel could be of most use.
+Assessing its worth and possible integration into our current processes should be worthwhile.
+Note - I don't know if this is something QAs already use for end to end tests.
+
+Sonarlint / SonarQube
+
+I was interested in the possibility to extend HTML rules in Sonarqube but this doesn't look like an easy option, extensive coding would be required for each additional rule created from a rule template. You can officially request extra HTML rules on forums though. 
+
+While researching Sonarlint and SonarQube, I have connected Sonarlint VSCode plugin to KF Sonarqube. If other devs haven't done this already, I feel that this could help them to fix more errors before pushing to the pipeline. It would be good to see how much more Sonar feedback we could get in the editor as more devs use 'connected mode' for this plugin and if it indeed does replicate what SonarQube does in the pipeline.
+
+
+Summary / Notes
+
+
+Sonarlint
+
+Connected mode
+
+Binding your local workspace folder to your SonarQube/SonarCloud project(s), you can benefit from the same rules and settings that are used to inspect the project on the server.
+
+https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode#connected-mode
+
+KF Server url - https://sonarqube.prod.int.iaas.kfplc.com
+
+Notifications
+
+While in Connected Mode, SonarLint receives notifications from SonarQube/SonarCloud about your Quality Gate changes and new issues.
+
+HTML Support / New HTML rule request
+
+https://community.sonarsource.com/tags/c/clean-code/rules/13/html?order=views
+https://community.sonarsource.com/search?q=html
+https://community.sonarsource.com/c/clean-code/rules/13
+
+Current HTML rules
+https://sonarqube.prod.int.iaas.kfplc.com/coding_rules?languages=web&selected=Web%3ADoctypePresenceCheck
+
+65 rules currently for KF Sonarqube, it looks like some have been created as custom rules: labelled with 'RULE TEMPLATE'.
+
+Adding / Importing rules
+
+https://docs.sonarsource.com/sonarqube/latest/extension-guide/adding-coding-rules/
+https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/importing-external-issues/generic-issue-import-format/
+https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/importing-external-issues/importing-third-party-issues/
+
+The activation of the rules that raise these issues cannot be managed within SonarQube. 
+
+External rules are not visible on the Rules page or reflected in any quality profile.
+
+Previous rule additions announcement
+https://community.sonarsource.com/t/8-new-html-rules-making-your-web-frontend-safer-and-more-accessible-vue-js-template-support/14481
+
+Issue tracker
+https://sonarsource.atlassian.net/jira/software/c/projects/SONARHTML/issues/SONARHTML-180?filter=allopenissues
+
+How to connect SonarLint to Kingfisher SonarQube
+
+Conclusion
+
+Although it doesn't look easy to add new HTML rules to SonarQube to try and match those in other HTML validators,
+I think adding connected mode to VSCode Sonarlint will be beneficial for all.
+
+
+
+NU Validator
+
+https://github.com/validator/validator/
+https://validator.github.io/validator/#build-instructions
+
+To run as a service locally you need Python and Java. It feels like an old website and maybe a dead end.
+
+Gitlab CI integration
+https://github.com/svenkreiss/html5validator#integration-with-gitlab-ci
+
+There's a Docker image for this package, I have run out of time to try and test results and suitability but it looks interesting and I imagine having something like this in Gitlab pipeline is an ideal scenario for this spike.
+
+Conclusion
+
+It's possible that this could be useful especially with the Docker image but my instinct was to move on to other packages.
+
+
+
+HTML VALIDATE 
+
+https://html-validate.org/usage/ 
+
+A lot of mentions of this while researching.
+Offline checks against extensive set of rules instead of using w3c / nu validator.
+
+So far, it looks like you have to manually run and include a path to files.
+
+When installing, it's asking if you're using Angular, Vue or Markdown.
+
+No mention of React.
+
+
+{
+  "elements": [
+    "html5"
+  ],
+  "extends": [
+    "html-validate:recommended",
+    "html-validate-vue:recommended"
+  ],
+  "transform": {
+    "^.*\\.js$": "html-validate-angular/js",
+    "^.*\\.html$": "html-validate-angular/html",
+    "^.*\\.vue$": "html-validate-vue",
+    "^.*\\.md$": "html-validate-markdown"
+  },
+  "plugins": [
+    "html-validate-vue"
+  ]
+}
+
+
+I have tested html-validate from terminal:
+
+yarn html-validate 'apps/browse-app/components/molecules/**/*.tsx'
+
+This reports 3326 problems relating to names, cases, self closing errors.
+The package can't target the HTML within JSX files. We will need to use some other package that possibly uses this validator as a dependency (like Cypress HTML Validate).
+
+Just reading that you can run 'yarn next export' to build static pages. Maybe that's a further option to explore for validating HTML. 
+
+No success so far with this, looks like I would have to change next.config.js output mode to generate static files. One possibility to explore could be to add a validation environment variable and custom validation config 
+within next config, then perhaps command like this would work:
+
+'VALIDATION=true next build'
+
+(ChatGPT suggestion, maybe outdated).
+
+Conclusion
+
+This plugin on its own is close to what I think we need, if we could output HTML a static folder (maybe not possible) but on first impressions the Cypress plugin that incorporates this plugin feels more useful.
+
+
+
+
+Cypress HTML Validate
+
+(uses HTML Validate as dependency)
+
+https://html-validate.org/usage/cypress.html
+https://www.npmjs.com/package/cypress-html-validate 
+
+If this package is judged to be of any use, I would suggest seniors could assess if FEDs should write extra validation tests in Cypress. 
+
+It's possible that this might be more appropriate for QAs to create on each ticket or periodically on page templates.
+
+Set up:
+https://html-validate.org/usage/cypress.html
+
+I had to search on github for examples of file structures that are used to set up this Cypress plugin.
+
+e.g. https://github.com/stoolball-england/stoolball-org-uk/blob/c2b79ea0e2624e4b948d67142c8967f384d8a2e5/Cypress/plugins/index.js
+
+I managed to get it working but the set up would still needs fine tuning. 
+
+The Cypress 'launchpad' is helpful for guiding through configuration (yarn cypress open).
+
+Here's a list of files created / edited:
+
+package.json
+tsconfig.json 
+cypress.config.ts 
+cypress/tsconfig.json
+cypress/plugins/index.ts
+cypress/support/e2e.ts
+cypress/support/index.ts
+cypress/e2e/home.cy.ts (actual test)
+
+I can document more details of updates if Cypress is deemed beneficial to current work flow.
+
+I have also pushed my WIP branch, which can be searched by '15083'.
+
+
+Commands:
+
+yarn cypress run
+
+or 
+
+yarn cypress open
+
+(helper interface)
+
+The results are very detailed, much more than when you manually put a url in the online w3c validator.
+
+The homepage is showing 78 errors, including wcag, aria, required-sri, headling level, valid id.
+
+By default, the results show in the browser controlled by Cypress. More detailed results are logged to the console.
+
+There's an option to add a formatter/reporter to see results more clearly.
+
+I am not sure how this can be put into a pipeline. Perhaps extra tests for page templates could be automated, somehow.
+
+Conclusion
+
+Although this does need set up and tests, I do think this is of potential use to our HTML standards.
+
+
+
+W3C Web Validator 
+
+https://marketplace.visualstudio.com/items?itemName=CelianRiboulet.webvalidator
+I can't get any warnings on JSX. Presume it only works on .html files
+
+Conclusion
+
+I didn't want to waste time on this package, no immediate results of note.
+
+
+
+HTML HINT 
+
+https://marketplace.visualstudio.com/items?itemName=HTMLHint.vscode-htmlhint
+
+Note it only checks open files.
+You can associate other files extensions and change rules.
+I couldn't get any errors working. You also need to open one html file (hmmm).
+
+Conclusion
+
+I have noticed devs recommending HTML VALIDATE over HTML HINT, I agree.
+
+
+
+ESLINT
+
+I have been looking for an ESlint package specifically for HTML validation.
+There's nothing obvious coming up in searches.
+
+https://github.com/jsx-eslint/eslint-plugin-jsx-a11y
+This plugin (already installed) does some good checks related to HTML.
+
+There's ability to create new rules from a template but it looks very involved and time consuming.
+
+https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/src/rules/anchor-is-valid.js
+
+Conclusion
+
+No remarkable HTML validation capabilities
+
+
+
+PA11Y
+
+https://github.com/pa11y/pa11y
+
+Similar to eslint-plugin-jsx-a11y.
+
+I have manually run 'yarn pa11y http://localhost:3000' (you can run it on a file).
+
+It shows errors in terminal, mainly a11y errors but still useful.
+
+You can use a test runner and html codesniffer to run reports
+
+yarn pa11y --runner axe --runner htmlcs http://localhost.com
+
+It seems to timeout on localhost but does run on screwfix.com but just a11y type errors.
+
+Conclusion
+
+This plugin was worth a look for any HTML validation capabilities but it's off topic.
+
+
+
+NODE-W3C-VALIDATOR
+
+(Wrapper for The Nu Html Checker - w3c uses)
+
+https://www.npmjs.com/package/node-w3c-validator
+
+.yarn node-w3c-validator -i apps/browse-app/**/*.tsx -f html -o ./reports/result.html -s
+yarn node-w3c-validator -i apps/browse-app/components/molecules/**/*.tsx -f html -o ./reports/result.html -s
+
+yarn node-w3c-validator -i libs/screw-kit/src/components/**/*.tsx -f html -o reports/result.html -s
+
+I couldn't get this to flag any errors.
+
+Conclusion
+
+I have had no success trying to make this run on JSX files
+
